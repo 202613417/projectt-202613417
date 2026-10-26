@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopNow — Home</title>
+  <title>ShopNow — Products</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -11,56 +11,43 @@
     <h1 class="logo">ShopNow</h1>
     <nav class="main-nav">
       <a href="index.html">Home</a>
-      <a href="products.html">Products</a>
+      <a href="product.html">Products</a>
       <a href="about.html">About</a>
     </nav>
   </header>
- 
+
   <section class="hero">
     <h2>Everyday tech, honest prices.</h2>
   </section>
- 
-  <section class="product-grid" id="featured-products"></section>
- <div class="product">
-  <img src="images/OIP (1).webp" alt="Business Laptop">
-  <h3>Business Laptop</h3>
-  <p>AED 3,499</p>
-  <button>Add to Cart</button>
-</div>
-<div class="product">
-  <img src="images/OIP (2).webp" alt="tablet">
-  <h3>tablet</h3>
-  <p>AED 2,499</p>
-  <button>Add to Cart</button>
-</div>
-<div class="product">
-  <img src="images/OIP.webp" alt="smart watch">
-  <h3>smart watch</h3>
-  <p>AED 1,499</p>
-  <button>Add to Cart</button>
-</div>
-<div class="product">
-  <img src="images/OIP (3).webp" alt="monitor">
-  <h3>monitor</h3>
-  <p>AED 2,099</p>
-  <button>Add to Cart</button>
-</div>
-<div class="product">
-  <img src="images/OIP (4).webp" alt="cpu">
-  <h3>cpu</h3>
-  <p>AED 4,499</p>
-  <button>Add to Cart</button>
-</div>
-<div class="product">
-  <img src="images/download.webp" alt="phones">
-  <h3>phones</h3>
-  <p>AED 2,499</p>
-  <button>Add to Cart</button>
-</div>
 
+  <section class="product-controls">
+    <h2>Our Products</h2>
 
-  <footer class="site-footer"><p>&copy; 2025 ShopNow.</p></footer>
+    <input type="text" id="search-box" placeholder="Search products...">
+
+    <div class="category-filters">
+      <button class="category-btn" data-category="All">All</button>
+      <button class="category-btn" data-category="Computers">Computers</button>
+      <button class="category-btn" data-category="Phones">Phones</button>
+      <button class="category-btn" data-category="Accessories">Accessories</button>
+      <button class="category-btn" data-category="Cameras">Cameras</button>
+    </div>
+
+    <label for="sort-select">Sort by Price:</label>
+
+    <select id="sort-select">
+      <option value="default">Default</option>
+      <option value="low-high">Low to High</option>
+      <option value="high-low">High to Low</option>
+    </select>
+  </section>
+
+  <section class="product-grid" id="product-list"></section>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 ShopNow.</p>
+  </footer>
+
   <script src="js/app.js"></script>
 </body>
 </html>
-
