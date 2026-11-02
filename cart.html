@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopNow - Shopping Cart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .cart-container {
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 25px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+    }
+
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 15px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .cart-row button {
+      margin: 4px;
+      padding: 7px 12px;
+      cursor: pointer;
+    }
+
+    .cart-total {
+      text-align: right;
+      margin-top: 25px;
+    }
+
+    .checkout-button {
+      background: #244b85;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+
+    .checkout-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <h1 class="logo">ShopNow</h1>
+
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="product.html">Products</a>
+      <a href="about.html">About</a>
+      <a href="cart.html">Cart</a>
+    </nav>
+  </header>
+
+  <main class="cart-container">
+    <h2>🛒 Your Shopping Cart</h2>
+
+    <div id="cart-items"></div>
+
+    <div class="cart-total">
+      <h3>
+        Subtotal: AED
+        <span id="cart-total">0.00</span>
+      </h3>
+
+      <button
+        id="checkout-button"
+        class="checkout-button"
+        type="button">
+        Proceed to Checkout
+      </button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 ShopNow.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
+
+</body>
+</html>

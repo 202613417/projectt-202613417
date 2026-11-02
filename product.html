@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ShopNow — Products</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .cart-button {
+      background: #fff;
+      color: #244b85;
+      border: 0;
+      border-radius: 6px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .cart-panel {
+      max-width: 800px;
+      margin: 25px auto;
+      padding: 22px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: white;
+    }
+
+    .cart-panel[hidden] {
+      display: none;
+    }
+
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 15px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .cart-row button {
+      margin: 3px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .cart-total {
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    .checkout-button {
+      background: #244b85;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -13,6 +68,10 @@
       <a href="index.html">Home</a>
       <a href="product.html">Products</a>
       <a href="about.html">About</a>
+      <button id="cart-toggle" class="cart-button"
+              type="button">
+        🛒 Cart (<span id="cart-count">0</span>)
+      </button>
     </nav>
   </header>
 
@@ -23,7 +82,8 @@
   <section class="product-controls">
     <h2>Our Products</h2>
 
-    <input type="text" id="search-box" placeholder="Search products...">
+    <input type="text" id="search-box"
+           placeholder="Search products...">
 
     <div class="category-filters">
       <button class="category-btn" data-category="All">All</button>
@@ -34,7 +94,6 @@
     </div>
 
     <label for="sort-select">Sort by Price:</label>
-
     <select id="sort-select">
       <option value="default">Default</option>
       <option value="low-high">Low to High</option>
@@ -44,10 +103,26 @@
 
   <section class="product-grid" id="product-list"></section>
 
+  <section id="cart-panel" class="cart-panel" hidden>
+    <h2>🛒 Your Shopping Cart</h2>
+    <div id="cart-items"></div>
+    <div class="cart-total">
+      <h3>Total: AED <span id="cart-total">0.00</span></h3>
+      <button id="checkout-button" class="checkout-button">
+        Proceed to Checkout
+      </button>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <p>&copy; 2026 ShopNow.</p>
   </footer>
 
-  <script src="js/app.js"></script>
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/app.js"></script>
+
 </body>
 </html>

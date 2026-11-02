@@ -1,59 +1,111 @@
-const products = [
-  { id: 1, name: "Business Laptop", category: "Computers", price: 3499, stock: 10 },
-  { id: 2, name: "IPhone17", category: "Phones", price: 299, stock: 25 },
-  { id: 3, name: "Camera Device", category: "Cameras", price: 180, stock: 0 },
-  { id: 4, name: "HP Laptop", category: "Computers", price: 2999, stock: 4 },
-  { id: 5, name: "Lenovo Laptop", category: "Computers", price: 2599, stock: 8 },
-  { id: 6, name: "Wireless Mouse", category: "Accessories", price: 129, stock: 25 },
-  { id: 7, name: "Keyboard", category: "Accessories", price: 199, stock: 3 },
-  { id: 8, name: "USB-C Cable", category: "Accessories", price: 49, stock: 20 },
-  { id: 9, name: "Headphones", category: "Accessories", price: 299, stock: 6 },
-  { id: 10, name: "Smartphone", category: "Phones", price: 2499, stock: 0 },
-  { id: 11, name: "iPhone 15", category: "Phones", price: 3299, stock: 5 },
-  { id: 12, name: "Samsung Galaxy", category: "Phones", price: 2799, stock: 12 },
-  { id: 13, name: "Google Pixel", category: "Phones", price: 2399, stock: 2 },
-  { id: 14, name: "Tablet", category: "Computers", price: 1599, stock: 7 },
-  { id: 15, name: "Webcam", category: "Accessories", price: 179, stock: 10 },
-  { id: 16, name: "Gaming Monitor", category: "Computers", price: 1899, stock: 0 },
-  { id: 17, name: "Power Bank", category: "Accessories", price: 99, stock: 1 }
-];
+const SUPABASE_URL = "https://cwlzsjbzxsbpkokgnlhr.supabase.co/";
+const SUPABASE_KEY = "sb_publishable_PEWlEp2pD8obpUe9S8NFpA_AhZU8qF7";
 
+let products = [];
 let searchTerm = "";
 let selectedCategory = "All";
 let sortOrder = "default";
 
+// Load products from Supabase
+async function loadProducts() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/product?select=*,category(category_name)&order=product_id.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to load products");
+    }
+
+    const data = await response.json();
+
+    products = data.map(p => ({
+      id: p.product_id,
+      name: p.name,
+      category: p.category?.category_name || "Other",
+      price: Number(p.price),
+      stock: p.stock
+    }));
+
+    updateProducts();
+
+  } catch (error) {
+    console.error(error);
+    const container = document.getElementById("product-list")
+      || document.getElementById("featured-products");
+
+    if (container) {
+      container.textContent = "Unable to load products.";
+    }
+  }
+}
+
+// Display products
 function renderProducts(list) {
-  const container = document.getElementById("product-list");
+  const container = document.getElementById("product-list")
+    || document.getElementById("featured-products");
 
   if (!container) return;
 
   container.innerHTML = "";
 
   if (list.length === 0) {
-    container.innerHTML = "<p>No products match your search.</p>";
+    container.textContent = "No products found.";
     return;
   }
 
-  list.forEach(prod => {
-    const stockLabel = prod.stock === 0 ? "Out of Stock"
-      : prod.stock <= 5 ? "Low Stock" : "In Stock";
+  list.forEach(product => {
+    const card = document.createElement("div");
+    card.className = "product";
 
-    container.innerHTML += `
-      <div class="product">
-        <h3>${prod.name}</h3>
-        <p>Category: ${prod.category}</p>
-        <p>AED ${prod.price.toLocaleString()}</p>
-        <p class="stock">${stockLabel}</p>
-        <button ${prod.stock === 0 ? "disabled" : ""}>Add to Cart</button>
-      </div>`;
+    const title = document.createElement("h3");
+    title.textContent = product.name;
+
+    const category = document.createElement("p");
+    category.textContent = "Category: " + product.category;
+
+    const price = document.createElement("p");
+    price.textContent = "AED " + product.price.toLocaleString();
+
+    const stock = document.createElement("p");
+    stock.textContent = product.stock > 0
+      ? "In Stock"
+      : "Out of Stock";
+
+    const button = document.createElement("button");
+    button.textContent = "Add to Cart";
+    button.disabled = product.stock <= 0;
+
+    button.addEventListener("click", () => {
+  if (typeof addToCart === "function") {
+    addToCart(product);
+  } else {
+    alert("Shopping cart is not ready.");
+  }
+});
+
+  
+
+    card.append(title, category, price, stock, button);
+    container.appendChild(card);
   });
 }
 
+// Search, filter and sort products
 function updateProducts() {
-  let filtered = products.filter(prod => {
-    const matchesSearch = prod.name.toLowerCase().includes(searchTerm);
-    const matchesCategory = selectedCategory === "All" ||
-      prod.category === selectedCategory;
+  let filtered = products.filter(product => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" ||
+      product.category === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
@@ -69,19 +121,20 @@ function updateProducts() {
   renderProducts(filtered);
 }
 
+// Setup search and filters
 function setupProducts() {
   const searchBox = document.getElementById("search-box");
 
   if (searchBox) {
     searchBox.addEventListener("input", e => {
-      searchTerm = e.target.value.toLowerCase().trim();
+      searchTerm = e.target.value;
       updateProducts();
     });
   }
 
   document.querySelectorAll(".category-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      selectedCategory = btn.dataset.category;
+      selectedCategory = btn.dataset.category || "All";
       updateProducts();
     });
   });
@@ -95,9 +148,10 @@ function setupProducts() {
     });
   }
 
-  updateProducts();
+  loadProducts();
 }
 
+// Start application
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", setupProducts);
 } else {

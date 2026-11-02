@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopNow - Register</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="logo">ShopNow</h1>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="product.html">Products</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main style="max-width:500px;margin:40px auto;padding:20px;">
+    <h2>Create Account</h2>
+
+    <form id="register-form">
+      <p>
+        <input type="email" id="email"
+          placeholder="Email Address" required>
+      </p>
+
+      <p>
+        <input type="password" id="password"
+          placeholder="Password" minlength="6" required>
+      </p>
+
+      <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account?
+      <a href="login.html">Login</a>
+    </p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+
+  <script>
+    document.getElementById("register-form")
+      .addEventListener("submit", async e => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        await registerUser(email, password);
+      });
+  </script>
+</body>
+</html>
