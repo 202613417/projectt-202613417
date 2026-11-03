@@ -1,9 +1,37 @@
 begin;
-alter table public.orders add column if not exists auth_user_id uuid references auth.users(id);
-alter table public.orders add column if not exists checkout_payload jsonb;
-alter table public.orders add column if not exists status text not null default 'Paid';
-create policy "Customers can view their own orders" on public.orders for select to authenticated using (auth_user_id = auth.uid());
-create policy "Customers can view their own order items" on public.order_item for select to authenticated using (exists (select 1 from public.orders o where o.order_id=order_item.order_id and o.auth_user_id=auth.uid()));
+set local lock_timeout = '5s';
+set local statement_timeout = '30s';
+-- Prevent a concurrent order from appearing between the checks and ALTER TABLE.
+lock table public.orders in access exclusive mode;
+do $preflight$
+begin
+ if exists(select 1 from public.orders) then
+  raise exception 'Migration stopped: orders now exist. Review ownership and payment-status backfill first.';
+ end if;
+ if exists(select 1 from information_schema.columns where table_schema='public' and table_name='orders' and column_name in ('auth_user_id','checkout_payload','status')) then
+  raise exception 'Migration stopped: target columns already exist. Review partial or previous installation.';
+ end if;
+ if (select count(*) from pg_class where oid in ('public.customer'::regclass,'public.orders'::regclass,'public.order_item'::regclass,'public.product'::regclass) and relrowsecurity) <> 4 then
+  raise exception 'Migration stopped: all four application tables must have RLS enabled.';
+ end if;
+ if exists(select 1 from pg_policies where schemaname='public' and tablename in ('customer','orders','order_item')) then
+  raise exception 'Migration stopped: unexpected existing private-table policies require review.';
+ end if;
+ if not exists(select 1 from pg_index where indrelid='public.orders'::regclass and indisunique and indisvalid and indpred is null and indexprs is null and indnkeyatts=1 and indkey[0]=(select attnum from pg_attribute where attrelid='public.orders'::regclass and attname='checkout_request_id')) then
+  raise exception 'Migration stopped: a valid unique checkout request index is required.';
+ end if;
+ if not has_table_privilege('authenticated','public.orders','SELECT') or not has_table_privilege('authenticated','public.order_item','SELECT') or not has_table_privilege('authenticated','public.product','SELECT') then
+  raise exception 'Migration stopped: expected authenticated SELECT grants are missing.';
+ end if;
+ if (select numeric_precision from information_schema.columns where table_schema='public' and table_name='orders' and column_name='total_amount') is distinct from 10 or (select numeric_scale from information_schema.columns where table_schema='public' and table_name='orders' and column_name='total_amount') is distinct from 2 then
+  raise exception 'Migration stopped: order total precision differs from reviewed numeric(10,2).';
+ end if;
+end $preflight$;
+alter table public.orders add column auth_user_id uuid references auth.users(id);
+alter table public.orders add column checkout_payload jsonb;
+alter table public.orders add column status text not null default 'Paid';
+create policy "Customers can view their own orders" on public.orders for select to authenticated using (auth_user_id = (select auth.uid()));
+create policy "Customers can view their own order items" on public.order_item for select to authenticated using (exists (select 1 from public.orders o where o.order_id=order_item.order_id and o.auth_user_id=(select auth.uid())));
 create or replace function public.shopnow_checkout(p_request_id uuid,p_customer_name text,p_email text,p_phone text,p_address text,p_items jsonb)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare c bigint; o bigint; total numeric:=0; i record; p record; previous record; payload jsonb; actor uuid:=auth.uid();
@@ -28,8 +56,9 @@ begin
  if (select count(*) from jsonb_to_recordset(p_items) as x(product_id bigint,quantity integer)) <> (select count(distinct x.product_id) from jsonb_to_recordset(p_items) as x(product_id bigint,quantity integer)) then raise exception 'Duplicate cart items.'; end if;
  for i in select * from jsonb_to_recordset(p_items) as x(product_id bigint,quantity integer) order by product_id loop
   select * into p from public.product where product_id=i.product_id for update;
-  if not found or p.stock is null or p.stock<i.quantity or p.price is null or p.price<0 then raise exception 'A product is unavailable or has insufficient stock.'; end if;
+  if not found or p.stock is null or p.stock<i.quantity or p.price is null or p.price<0 or p.price::text in ('NaN','Infinity','-Infinity') then raise exception 'A product is unavailable or has insufficient stock.'; end if;
   total:=total+round(p.price,2)*i.quantity;
+  if total>99999999.99 then raise exception 'The order total exceeds the supported limit.'; end if;
  end loop;
  insert into public.customer(customer_name,email,phone) values(trim(p_customer_name),lower(trim(p_email)),trim(p_phone)) on conflict(email) do nothing returning customer_id into c;
  if c is null then select customer_id into c from public.customer where email=lower(trim(p_email)); end if;
