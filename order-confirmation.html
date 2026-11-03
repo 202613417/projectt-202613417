@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopNow - Order confirmation</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="logo">ShopNow</h1>
+    <nav class="main-nav"><a href="index.html">Home</a><a href="product.html">Products</a><a href="cart.html">Cart</a><a href="about.html">About</a></nav>
+  </header>
+  <main style="max-width:650px;margin:40px auto;padding:20px;">
+    <h2>Order confirmation</h2>
+    <p id="confirmation-message" role="status" aria-live="polite">Loading your order…</p>
+    <section id="order-details" hidden>
+      <h3>Order #<span id="order-number"></span></h3>
+      <p>Status: <span id="order-status"></span></p>
+      <div id="order-items"></div>
+      <h3>Total: AED <span id="order-total"></span></h3>
+      <p>This university demo simulates payment. No payment was collected.</p>
+    </section>
+    <p><a href="product.html">Continue shopping</a></p>
+  </main>
+  <footer class="site-footer"><p>&copy; 2026 ShopNow.</p></footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/order-confirmation.js"></script>
+</body>
+</html>

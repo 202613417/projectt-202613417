@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopNow — Home</title>
+  <title>ShopNow - About</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,19 +12,20 @@
     <h1 class="logo">ShopNow</h1>
     <nav class="main-nav">
       <a href="index.html">Home</a>
-      <a href="products.html">Products</a>
+      <a href="product.html">Products</a>
+      <a href="cart.html">Cart</a>
       <a href="about.html">About</a>
     </nav>
   </header>
  
-  <section class="hero">
-    <h2>Everyday tech, honest prices.</h2>
-  </section>
- 
-  <section class="product-grid" id="featured-products"></section>
- 
-  <footer class="site-footer"><p>&copy; 2025 ShopNow.</p></footer>
-  <script src="js/app.js"></script>
+  <main style="max-width:650px;margin:40px auto;padding:20px;">
+    <h2>About ShopNow</h2>
+    <p>ShopNow is a university e-commerce project for browsing technology products, managing a shopping cart, and placing an order after signing in.</p>
+    <p>The catalog and orders use Supabase. Your cart stays in your browser until you place an order or remove its items.</p>
+    <p>Checkout simulates payment for learning purposes. No real payment is collected.</p>
+    <p><a href="product.html">Browse products</a></p>
+  </main>
+  <footer class="site-footer"><p>&copy; 2026 ShopNow.</p></footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/auth.js"></script>
 </body>

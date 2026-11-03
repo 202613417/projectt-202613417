@@ -28,7 +28,7 @@
 
     <h3>Customer Information</h3>
 
-    <form id="checkout-form">
+    <form id="checkout-form" hidden>
       <p>
         <input type="text" id="customer-name" aria-label="Full Name" maxlength="150"
           placeholder="Full Name" required>
@@ -40,7 +40,7 @@
       </p>
 
       <p>
-        <input type="tel" id="customer-phone" aria-label="Phone Number" minlength="3" maxlength="30"
+        <input type="tel" id="customer-phone" aria-label="Phone Number" minlength="7" maxlength="15" pattern="[+]?[0-9][0-9 ]*"
           placeholder="Phone Number" required>
       </p>
 
@@ -61,26 +61,17 @@
     <p>&copy; 2026 ShopNow.</p>
   </footer>
 
-  <script src="js/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/auth.js"></script>
+<script src="js/checkout.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
-    const form = document.getElementById("checkout-form");
-    const button = document.getElementById("place-order");
-
-    if (form) form.hidden = true;
-    if (button) button.disabled = true;
-
     const user = await getCurrentUser();
-
-    if (!user) {
-      window.location.replace("login.html");
-      return;
-    }
-
-    if (form) form.hidden = false;
-    if (button) button.disabled = false;
+    if (!user) { window.location.replace("login.html"); return; }
+    const email = document.getElementById("customer-email");
+    email.value = user.email || "";
+    email.readOnly = true;
+    document.getElementById("checkout-form").hidden = false;
   });
 </script>
 </body>

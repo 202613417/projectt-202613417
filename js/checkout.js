@@ -45,7 +45,7 @@ form.addEventListener('submit', async event => {
  if (!form.reportValidity()) return;
  const value = id => document.getElementById(id).value.trim();
  const customer = {p_customer_name:value('customer-name'),p_email:value('customer-email').toLowerCase(),p_phone:value('customer-phone'),p_address:value('customer-address')};
- if (!customer.p_customer_name || customer.p_customer_name.length>150 || customer.p_email.length>150 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.p_email) || customer.p_phone.length<3 || customer.p_phone.length>30 || customer.p_address.length<5 || customer.p_address.length>1000) {message.textContent='Please enter a valid name, email, phone number, and delivery address.'; return;}
+ if (!customer.p_customer_name || customer.p_customer_name.length>150 || customer.p_email.length>150 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.p_email) || customer.p_phone.length<7 || customer.p_phone.length>15 || !/^[+]?[0-9][0-9 ]*$/.test(customer.p_phone) || customer.p_address.length<5 || customer.p_address.length>1000) {message.textContent='Please enter a valid name, email, phone number, and delivery address.'; return;}
  let submitted;
  try {submitted=readCart();} catch(e) {message.textContent=e.message; return;}
  if (!submitted.length) {cart=[]; render(); return;}
@@ -57,7 +57,10 @@ form.addEventListener('submit', async event => {
  } catch(e) {message.textContent='Please enable browser storage before placing an order.'; return;}
  busy=true; render(); button.textContent='Placing order…'; message.textContent='Saving your order…';
  try {
-  const response=await fetch(SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/rpc/shopnow_checkout',{method:'POST',headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_request_id:request.id,...customer,p_items:submitted.map(i=>({product_id:Number(i.id),quantity:i.quantity}))})});
+  const {data: sessionData, error: sessionError} = await authClient.auth.getSession();
+  const session = sessionData && sessionData.session;
+  if (sessionError || !session || !session.access_token) throw new Error('Please log in again before placing your order. Your cart has been kept.');
+  const response=await fetch(SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/rpc/shopnow_checkout',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({p_request_id:request.id,...customer,p_items:submitted.map(i=>({product_id:Number(i.id),quantity:i.quantity}))})});
   const result=await response.json();
   if (!response.ok) {
    if (result.code==='PGRST202') throw new Error('Order saving is not set up yet. Your cart has been kept.');
@@ -71,6 +74,7 @@ form.addEventListener('submit', async event => {
   render();
   message.textContent='Order #'+result.order_id+' placed successfully. Total: AED '+money(result.total_amount)+'.'+(cleared?'':' Your changed cart has been kept.');
   form.reset();
+  window.location.assign('order-confirmation.html?id='+encodeURIComponent(String(result.order_id)));
  } catch(e) {message.textContent=e.message==='Failed to fetch'?'Connection failed. Your cart has been kept. Retry to check or complete the same order.':e.message;}
  finally {busy=false; button.textContent='Place Order'; render();}
 });
