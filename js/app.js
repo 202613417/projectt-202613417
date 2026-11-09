@@ -9,20 +9,11 @@ let sortOrder = "default";
 // Load products from Supabase
 async function loadProducts() {
   try {
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/product?select=*,category(category_name)&order=product_id.asc`,
-      {
-        headers: {
-          apikey: SUPABASE_KEY
-        }
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to load products");
-    }
-
-    const data = await response.json();
+    const { data, error } = await authClient
+      .from("product")
+      .select("*, category(category_name)")
+      .order("product_id");
+    if (error) throw error;
 
     products = data.map(p => ({
       id: p.product_id,
@@ -73,9 +64,8 @@ function renderProducts(list) {
     price.textContent = "AED " + product.price.toLocaleString();
 
     const stock = document.createElement("p");
-    stock.textContent = product.stock > 0
-      ? "In Stock"
-      : "Out of Stock";
+    stock.textContent = product.stock <= 0 ? "Out of Stock"
+      : product.stock <= 5 ? "Low Stock" : "In Stock";
 
     const button = document.createElement("button");
     button.textContent = "Add to Cart";
@@ -91,7 +81,10 @@ function renderProducts(list) {
 
   
 
-    card.append(title, category, price, stock, button);
+    const details = document.createElement("a");
+    details.href = "product-detail.html?id=" + encodeURIComponent(product.id);
+    details.textContent = "View details";
+    card.append(title, category, price, stock, details, button);
     container.appendChild(card);
   });
 }
