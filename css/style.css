@@ -9,3 +9,23 @@ body { font-family: Arial, sans-serif; color: #222; }
   .site-header { flex-direction: column; align-items: flex-start; }
   .main-nav a { margin-left: 0; margin-right: 1rem; }
 }
+
+/* Responsive navigation and product details verified 9 November 2026. */
+.main-nav { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; }
+.main-nav a { margin-left:0; }
+#auth-controls { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; overflow-wrap:anywhere; }
+.hero, .product-controls, .site-footer { padding:1rem 2rem; }
+.product-controls > *, .category-filters { margin:.4rem 0; }
+.product a { display:block; margin:.75rem 0; }
+.detail-container { max-width:700px; margin:2rem auto; padding:1.5rem; }
+.detail-container p, .detail-container h2 { margin:.8rem 0; }
+button, input, select, textarea { font:inherit; max-width:100%; }
+button { padding:.4rem .7rem; }
+button:disabled { opacity:.55; cursor:not-allowed; }
+@media (max-width:600px) {
+  .site-header { gap:1rem; padding:1rem; }
+  .main-nav { width:100%; }
+  .product-grid { padding:1rem; grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr)); }
+  .hero, .product-controls, .site-footer { padding:1rem; }
+  .cart-container { margin:1rem; padding:1rem; }
+}
