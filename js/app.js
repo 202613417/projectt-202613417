@@ -2,6 +2,7 @@ const SUPABASE_URL = "https://cwlzsjbzxsbpkokgnlhr.supabase.co/";
 const SUPABASE_KEY = "sb_publishable_PEWlEp2pD8obpUe9S8NFpA_AhZU8qF7";
 
 let products = [];
+let catalogueStatus = "loading";
 let searchTerm = "";
 let selectedCategory = "All";
 let sortOrder = "default";
@@ -18,15 +19,20 @@ async function loadProducts() {
     products = data.map(p => ({
       id: p.product_id,
       name: p.name,
+      description: p.description,
       category: p.category?.category_name || "Other",
       price: Number(p.price),
       stock: p.stock
     }));
 
+    catalogueStatus = "ready";
     updateProducts();
+    updateSmartResults();
 
   } catch (error) {
     console.error(error);
+    catalogueStatus = "error";
+    updateSmartResults();
     const container = document.getElementById("product-list")
       || document.getElementById("featured-products");
 
@@ -114,9 +120,43 @@ function updateProducts() {
   renderProducts(filtered);
 }
 
+function updateSmartResults() {
+  const input = document.getElementById("smart-search");
+  const results = document.getElementById("smart-results");
+  if (!input || !results) return;
+
+  const query = input.value.trim();
+  results.textContent = "";
+  if (query.length < 3) return;
+  if (catalogueStatus !== "ready") {
+    results.textContent = catalogueStatus === "loading"
+      ? "Loading catalogue…"
+      : "Unable to load the catalogue. Reload the page to try again.";
+    return;
+  }
+
+  const matches = smartSearch(query, products);
+  if (!matches.length) {
+    results.textContent = "No matches. Try different words.";
+    return;
+  }
+
+  const list = document.createElement("ul");
+  for (const product of matches) {
+    const item = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = "product-detail.html?id=" + encodeURIComponent(product.id);
+    link.textContent = product.name;
+    item.append(link, " — AED " + product.price.toLocaleString());
+    list.append(item);
+  }
+  results.append(list);
+}
+
 // Setup search and filters
 function setupProducts() {
   const searchBox = document.getElementById("search-box");
+  document.getElementById("smart-search")?.addEventListener("input", updateSmartResults);
 
   if (searchBox) {
     searchBox.addEventListener("input", e => {

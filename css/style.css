@@ -29,3 +29,11 @@ button:disabled { opacity:.55; cursor:not-allowed; }
   .hero, .product-controls, .site-footer { padding:1rem; }
   .cart-container { margin:1rem; padding:1rem; }
 }
+
+#smart-search {
+  width: min(100%, 20rem);
+}
+
+#smart-results ul {
+  padding-inline-start: 1.25rem;
+}
