@@ -1,6 +1,16 @@
 const SUPABASE_URL = "https://cwlzsjbzxsbpkokgnlhr.supabase.co/";
 const SUPABASE_KEY = "sb_publishable_PEWlEp2pD8obpUe9S8NFpA_AhZU8qF7";
 
+// Existing Lab 1 images, matched to the catalogue products they illustrate.
+const productImages = {
+  1: ["images/download.webp", "Illustrative smartphone photo"],
+  2: ["images/download.webp", "Illustrative smartphone photo"],
+  3: ["images/download.webp", "Illustrative smartphone photo"],
+  10: ["images/OIP (2).webp", "Illustrative tablet photo"],
+  11: ["images/OIP (1).webp", "Illustrative laptop photo"],
+  12: ["images/OIP (3).webp", "Illustrative monitor photo"]
+};
+
 let products = [];
 let catalogueStatus = "loading";
 let searchTerm = "";
@@ -59,6 +69,14 @@ function renderProducts(list) {
   list.forEach(product => {
     const card = document.createElement("div");
     card.className = "product";
+
+    const image = productImages[product.id];
+    if (image) {
+      const photo = document.createElement("img");
+      photo.src = image[0];
+      photo.alt = image[1];
+      card.appendChild(photo);
+    }
 
     const title = document.createElement("h3");
     title.textContent = product.name;
